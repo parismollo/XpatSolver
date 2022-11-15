@@ -36,7 +36,7 @@ Votre dépôt git sera donc un dérivé (ou "fork") du dépôt public du
 cours. En pratique:
 
   - L'un des membres de votre groupe se rend sur le dépôt git du projet
-    https://gaufre.informatique.univ-paris-diderot.fr/pf5-profs/pf5-projet
+    https://gaufre.informatique.univ-paris-diderot.fr/pf5-profs/pf5-projet-2022
     puis s'identifie si ce n'est pas déjà fait, et appuie sur le bouton
     "fork" (vers le haut, entre "Star" et "Clone"). Attention, un
     seul "fork" par groupe suffit.
@@ -45,8 +45,8 @@ cours. En pratique:
     défiler un peu et cliquer sur "Visibility", et
     selectionner "Private" comme "projet visibility", puis "Save changes"
     un peu plus bas. Vérifier qu'un cadenas apparaît maintenant
-    à droite de `pf5-projet` quand vous cliquez sur "Projet" en haut à
-    gauche.
+    à droite de `pf5-projet-2022` quand vous cliquez sur "Projet" en haut
+	à gauche.
 
   - Toujours dans "Settings" en bas à gauche, mais sous-section "Members"
     maintenant. "Invitez" votre collègue de projet en choissant
@@ -135,7 +135,7 @@ La première fois, aller dans votre répertoire de travail sur votre machine,
 et taper:
 
 ```
-git remote add prof git@gaufre.informatique.univ-paris-diderot.fr:pf5-profs/pf5-projet.git
+git remote add prof git@gaufre.informatique.univ-paris-diderot.fr:pf5-profs/pf5-projet-2022.git
 ```
 
 Ensuite, à chaque fois que vous souhaiterez récupérer des commits du dépôt
