@@ -1,0 +1,2 @@
+#!/bin/sh
+dune exec src/XpatSolver.exe -- $@
