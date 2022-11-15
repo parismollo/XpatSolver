@@ -126,6 +126,9 @@ Votre programme devra accepter l'option `-check` suivi d'un nom de fichier (et c
 
 Comme indiqué précédemment, la fonction `XpatRandom.shuffle` fournie est incomplète, elle n'est qu'une succession de cas particuliers pour permettre quelques essais initiaux. Vous devez la remplacer par une fonction complète compatible avec l'algorithme utilisé par xpat2. Voir la description de cet algorithme en commentaire dans le fichier `XpatRandom.ml`. Le code actuel pourra vous servir de test pour votre nouvelle implémentation de `shuffle`. Votre code de `shuffle` nécessitera l'usage d'une structure `Fifo` (first-in first-out). Une première version de `Fifo.ml` et son interface `Fifo.mli` est fournie, mais l'implémentation proposée est inefficace (ajout linéaire dans la fifo). En conservant exactement l'interface `Fifo.mli`, vous pourrez changer l'implémentation `Fifo.ml` afin de disposer d'une implémentation fonctionnelle avec ajout et retrait en temps constant en moyenne. Pour cela une possibilité est d'utiliser une paire de listes (au lieu d'une seule liste).
 
+### Tests
+
+Vérifiez que vous obtenez des résultats corrects avec la commande `dune runtest tests/I` qui doit ne rien afficher, et sans erreur.  Les tests ne garantissent pas que tout est parfait, mais peuvent aider à détecter des erreurs communes.
 
 ## Partie II : recherche automatique de solutions
 
