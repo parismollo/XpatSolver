@@ -51,12 +51,17 @@ e) La fonction de tirage vue précédemment produit un entier dans
    fournie plus haut.
    Les tirages suivants nous servent à créer la permutation voulue des
    52 cartes. On commence avec une liste des nombres successifs entre 0 et 51.
-   Un tirage dans [0..52[ nous donne alors la position du premier nombre
+   Un tirage dans [0..52[ nous donne alors la position du dernier nombre
    à mettre dans notre permutation. On enlève alors le nombre à cette position
    dans la liste. Puis un tirage dans [0..51[ nous donne la position
-   (dans la liste restante) du second nombre de notre permutation. On continue
-   ainsi à tirer des positions valides dans la liste résiduelle, puis à retirer
-   les nombres à ces positions tirées, jusqu'à épuisement de la liste.
+   (dans la liste restante) de l'avant-dernier nombre de notre permutation.
+   On continue ainsi à tirer des positions valides dans la liste résiduelle,
+   puis à retirer les nombres à ces positions tirées pour les ajouter dans
+   devant la permutation, jusqu'à épuisement de la liste. Le dernier nombre
+   retiré de la liste donne donc la tête de la permutation.
+
+   NB: /!\ la version initiale de ce commentaire donnait par erreur
+   la permutation dans l'ordre inverse).
 
 TODO mettre des exemples intermédiaires
 
