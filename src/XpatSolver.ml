@@ -14,7 +14,7 @@ let getgame = function
   | "FreeCell"|"fc" -> Freecell
   | "Seahaven"|"st" -> Seahaven
   | "MidnightOil"|"mo" -> Midnight
-  | "BakersDozen"|"bc" -> Baker
+  | "BakersDozen"|"bd" -> Baker
   | _ -> raise Not_found
 
 let split_on_dot name =
