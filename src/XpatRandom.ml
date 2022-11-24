@@ -63,7 +63,8 @@ e) La fonction de tirage vue précédemment produit un entier dans
    NB: /!\ la version initiale de ce commentaire donnait par erreur
    la permutation dans l'ordre inverse).
 
-TODO mettre des exemples intermédiaires
+Un exemple complet de génération d'une permutation (pour la graine 1)
+est maintenant donné dans le fichier XpatRandomExemple.ml, étape par étape.
 
 *)
 
