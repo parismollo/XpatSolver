@@ -1,46 +1,57 @@
-
-let create_depot sol = match sol with
-  |_  -> List.init 4 (fun x -> 0)
-
-let create_reg sol = match sol with
-  |"freecell"  -> List.init 4 (fun x -> -1);
-  |"seahaven"  -> List.init 4 (fun x -> -1);
-  |"bakers"    -> List.init 0 (fun x -> -1);
-  |"midnight"  -> List.init 0 (fun x -> -1);
-  | _ -> List.init 0 (fun x -> 0)
-
-let create_fifo idx sol = match sol with
-  |"freecell" -> if (idx mod 2) = 0 then List.init 7 (fun x -> -1) 
-    else List.init 6 (fun x -> -1) 
-  |"seahaven" -> List.init 5 (fun x -> -1)
-  |"bakers" -> List.init 4 (fun x -> -1)
-  |"midnight" -> List.init 3 (fun x -> -1)
-  | _ -> List.init 0 (fun x -> 0)
-
-let create_cols sol = match sol with 
-  |"freecell" -> List.init 8 (fun x -> create_fifo x sol)
-  |"seahaven" -> List.init 10 (fun x -> create_fifo x sol)
-  |"bakers" -> List.init 13 (fun x -> create_fifo x sol)
-  |"midnight" -> List.init 18 (fun x -> create_fifo x sol)
-  | _ -> List.init 0 (fun x -> create_fifo 0 "0")
-
+(* type solitaire: nom, colonnes, registres, depot et historique *)
 type solitaire = {
-  nom : string;
-  col : int list list;
-  reg : int list;
-  dep : int list;
+  name : string;
+  cols : int list Array.t;
+  reg : int list Array.t;
+  dep : int Array.t;
   hist: int
-} 
+}
+(* TODO: creer un type pour chaque jeu contentant leurs configurations (fait partie du procesus
+   de generalisation des methods pour tous types) *)
 
-type jeux = 
-  |Seahaven of solitaire
-  |Freecell of solitaire
-  |Bakers   of solitaire
-  |Midnight of solitaire
+(* type jeux soit c'est Freecell, soir Seahaven, soit Bakers, soit Midnight *)
+type jeu = 
+    |Seahaven of solitaire
+    |Freecell of solitaire
+    |Bakers   of solitaire
+    |Midnight of solitaire
+
+let fill_col cols col_size index cards =
+  let target_cards = List.filteri (fun idx card -> if idx < col_size then true else false) cards in
+  let cards_left = List.filteri (fun idx card -> if idx >= col_size then true else false) cards in
+  let results = Array.set cols index target_cards in
+  (cols, cards_left)
+  
+
+let rec fill_cols cols cards cardsPerCol index = 
+  (*set each col in columns*)
+  match cardsPerCol with
+  | [] -> (cols, cards)
+  | col_size :: t_cardsPerCol -> let (updated_cols, cards_left) = fill_col cols col_size index cards in
+  fill_cols updated_cols cards_left t_cardsPerCol (index+1)
 
 
-let example_freecell = Freecell {nom = "freecell" ; col = create_cols "freecell"; reg = create_reg "freecell"; dep = create_depot "freecell"; hist = 0 } ;;
-let example_seahaven  = Seahaven {nom = "seahaven" ; col = create_cols "seahaven"; reg = create_reg "seahaven"; dep = create_depot "seahaven"; hist = 0 } ;;
-let example_midnight = Midnight {nom = "midnight" ; col = create_cols "midnight"; reg = create_reg "midnight"; dep = create_depot "midnight"; hist = 0 } ;;
-let example_bakers  = Bakers {nom = "bakers" ; col = create_cols "bakers"; reg = create_reg "bakers"; dep = create_depot "bakers"; hist = 0 } ;;
+let fill_game_attrib game cards cardsPerCol = 
+  let (cols, cards_left) = fill_cols game.cols cards cardsPerCol 0 in
+  let game = {game with cols = cols} in game
 
+
+
+
+let prepare_game game_name cards nbcols cardsPerCol nbReg nbDepot= 
+  let name = game_name in
+  let history = 0 in
+  let dep = Array.make nbDepot 0 in
+  let registers = Array.make nbReg [] in
+  let columns = Array.make nbcols [] in 
+  let game = {name=name; cols=columns; reg=registers; dep=dep; hist=history} in
+  fill_game_attrib game cards cardsPerCol
+
+
+let create_game game_name cards = 
+  match game_name with 
+    | "freecell" -> prepare_game game_name cards 8 [7; 6; 7; 6; 7; 6; 7; 6] 4 4
+    (* | "seahaven" -> prepare_game game_name cards 10 (List.init 10 (fun x -> 5)) 4 2
+    | "bakers" -> prepare_game game_name cards 13 (List.init 13 (fun x -> 4)) 0 4
+    | "midnight" -> prepare_game game_name cards 18 (List.init 18 (fun x -> 3)) 0 4 *)
+    | _ -> raise Not_found
