@@ -68,6 +68,19 @@ est maintenant donné dans le fichier XpatRandomExemple.ml, étape par étape.
 
 *)
 
+(*TODO 1 : créer les 55 premières paires*)
+
+let diff a b =
+   if a >= b then a - b else a - b + randmax;;
+
+(*créer les 55 c1 dans une liste*)
+let create_list_c1 =
+   List.init 55 (fun i -> (i*21) mod 55);;
+
+(*créer les 55 c2 dans une liste*)
+   
+(*rassembler la liste de c1 et de c2 pour faire des paires*)
+
 (* For now, we provide a shuffle function that can handle a few examples.
    This can be kept later for testing your implementation. *)
 
