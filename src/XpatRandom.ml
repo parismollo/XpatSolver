@@ -25,6 +25,37 @@ a) Créer tout d'abord les 55 premières paires suivantes:
     Par "différence" entre a et b on entend
       - Ou bien (a-b) si b<=a
       - Ou bien (a-b+randmax) si a<b
+*)
+
+let compute_diff prev_2 prev_1 = 
+   if prev_2 >= prev_1 then 
+      prev_2 - prev_1 
+   else
+      prev_2 - prev_1 + randmax
+
+let compute_first_component = List.init 55 (fun i -> (i*21) mod 55)
+
+let compute_second_component graine = 
+   let rec compute counter prev_2 prev_1 tab = 
+      let diff = compute_diff prev_2 prev_1 in 
+      if counter > 0 then
+         match counter with 
+         | 55 -> let new_tab = prev_2 :: tab in compute (counter - 1) prev_2 prev_1 new_tab
+         | 54 -> let new_tab = prev_1 :: tab in compute (counter - 1) prev_2 prev_1 new_tab
+         | _ -> let new_tab = diff :: tab in compute (counter - 1) prev_1 diff new_tab
+      else
+         tab
+   in List.rev (compute 55 graine 1 [])
+
+let create_paires graine = 
+   (* check if input is valid *)
+   if graine < 0 || graine > randmax then
+      raise (Invalid_argument "graine out of bounds")
+   else 
+      let first_comp = compute_first_component in 
+      let second_comp = compute_second_component graine in
+      List.combine first_comp second_comp
+(*
 
 b) Trier ces 55 paires par ordre croissant selon leurs premières composantes,
    puis séparer entre les 24 premières paires et les 31 suivantes.

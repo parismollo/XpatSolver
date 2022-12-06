@@ -19,10 +19,10 @@ let midnight_config = {nbcols=18; nbreg=0; nbdep=4}
 let bakers_config = {nbcols=13; nbreg=0; nbdep=4}
 
 type game = 
-    |Seahaven of solitaire
-    |Freecell of solitaire
-    |Bakers   of solitaire
-    |Midnight of solitaire
+  | Seahaven of solitaire
+  | Freecell of solitaire
+  | Bakers   of solitaire
+  | Midnight of solitaire
 
 let fill_col cols col_size index cards =
   let target_cards = List.filteri (fun idx card -> if idx < col_size then true else false) cards in
