@@ -4,17 +4,32 @@
    (*le jeu global*)
    type solitaire
 
+   (*initialiser le nombre de colonnes, registre et depots*)
+   type game_config
+
    (*les 4 differents solitaires*)
-   type jeux
+   type game
 
-   (*creation des depots*)
-   val create_depot : (unit -> solitaire) -> int list
+   (*initialiser game_config pour le type de game freecell*)
+   val free_config : game_config
+   (*initialiser game_config pour le type de game seahaven*)
+   val sea_config : game_config 
+   (*initialiser game_config pour le type de game midnight*)
+   val midnight_config : game_config 
+   (*initialiser game_config pour le type de game bakers*)
+   val bakers_config : game_config 
 
-   (*creation des registres*)
-   val create_reg : string -> int list
+   (*remplit les colonnes par les cartes de la permutation*)
+   val fill_col : 'a list array -> int -> int -> 'a list -> 'a list array * 'a list
 
-   (*creation des colonnes qui auront une certaine distribution de cartes par colonne*)
-   val create_cols : string -> int list list
+   (**)
+   val fill_cols : 'a list array -> 'a list -> int list -> int -> 'a list array * 'a list
 
-   (*repartition des cartes par colonnes avec idx le nombre de cartes par colonne*)
-   val create_fifo : int -> string -> int list
+   (**)
+   val fill_game_attrib : solitaire -> int list -> int list -> solitaire
+
+   (**)
+   val prepare_game : string -> int list -> int -> int list -> int -> int -> solitaire
+
+   (**)
+   val create_game : string -> int list -> solitaire
