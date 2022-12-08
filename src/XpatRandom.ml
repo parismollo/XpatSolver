@@ -66,7 +66,7 @@ b) Trier ces 55 paires par ordre croissant selon leurs premières composantes,
 
    1. trier par odre croissant (premier comp) - OK
    2. split entre 24 (groupe a) et 31 (groupe b) - OK
-   3. pour le groupe b et groupe a mettre dans un fifo. 
+   3. pour le groupe b et groupe a mettre dans un fifo. - Ok
 
 *)
 
@@ -101,16 +101,15 @@ c) Un *tirage* à partir de deux FIFO (f1,f2) consiste à prendre
 
 (* c) *)   
 
-let update_fifo f1 f2 =
-   let n1 = Fifo.pop f1 in
-   let n2 = Fifo.pop f2 in
-   let d = if n1 <= n2 then (n2 - n1) else (n2 - n1) + randmax in
-   let new_f1 = Fifo.push f1 n2 in
-   let new_f2 = Fifo.push f2 d in
-   (d, new_f1, new_f2);;
+
+let tirage f1 f2 =
+   let (n1, new_f1) = pop f1   in
+   let (n2, new_f2) = pop f2   in
+   let d = compute_diff n1 n2  in 
+   let new_f1 = push n2 new_f1 in 
+   let new_f2 = push d new_f2  in
+   (d, new_f1, new_f2);; 
    
-
-
 (*
 d) On commence alors par faire 165 tirages successifs en partant
    de (f1_init,f2_init). Ces tirages servent juste à mélanger encore
@@ -139,19 +138,6 @@ Un exemple complet de génération d'une permutation (pour la graine 1)
 est maintenant donné dans le fichier XpatRandomExemple.ml, étape par étape.
 
 *)
-
-(*TODO 1 : créer les 55 premières paires*)
-
-let diff a b =
-   if a >= b then a - b else a - b + randmax;;
-
-(*créer les 55 c1 dans une liste*)
-let create_list_c1 =
-   List.init 55 (fun i -> (i*21) mod 55);;
-
-(*créer les 55 c2 dans une liste*)
-   
-(*rassembler la liste de c1 et de c2 pour faire des paires*)
 
 (* For now, we provide a shuffle function that can handle a few examples.
    This can be kept later for testing your implementation. *)
