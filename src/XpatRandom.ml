@@ -100,13 +100,16 @@ c) Un *tirage* à partir de deux FIFO (f1,f2) consiste à prendre
 *)
 
 (* c) *)   
+
 let update_fifo f1 f2 =
    let n1 = Fifo.pop f1 in
    let n2 = Fifo.pop f2 in
-   let d = compute_diff n1 n2 in
+   let d = if n1 <= n2 then (n2 - n1) else (n2 - n1) + randmax in
    let new_f1 = Fifo.push f1 n2 in
    let new_f2 = Fifo.push f2 d in
    (d, new_f1, new_f2);;
+   
+
 
 (*
 d) On commence alors par faire 165 tirages successifs en partant
