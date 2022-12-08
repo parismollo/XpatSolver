@@ -47,8 +47,8 @@ let compute_second_component graine =
          tab
    in List.rev (compute 55 graine 1 [])
 
+(* a)  *)
 let create_paires graine = 
-   (* check if input is valid *)
    if graine < 0 || graine > randmax then
       raise (Invalid_argument "graine out of bounds")
    else 
@@ -64,6 +64,33 @@ b) Trier ces 55 paires par ordre croissant selon leurs premières composantes,
    `Fifo.mli`). De même pour les 24 paires, leurs secondes composantes sont
    à mettre dans une FIFO f2_init, dans cet ordre.
 
+   1. trier par odre croissant (premier comp) - OK
+   2. split entre 24 (groupe a) et 31 (groupe b) - OK
+   3. pour le groupe b et groupe a mettre dans un fifo. 
+
+*)
+
+let compare_tuple t1 t2 = 
+   let (c1_1, _) = t1 in 
+   let (c1_2, _) = t2 in
+   compare c1_1 c1_2
+
+let sort_list_tuples l = List.sort compare_tuple l
+
+let get_sections l = 
+   (List.filteri (fun idx card -> if idx <= 23 then true else false) l, 
+      List.filteri (fun idx card -> if idx > 23 then true else false) l)
+
+(* b) *)
+
+let sort_and_fifo l = 
+   let sorted = sort_list_tuples l in
+   let (a, b) = get_sections sorted in
+   let (_, c2_1) = List.split a in
+   let (_, c2_2) = List.split b in 
+   (Fifo.of_list c2_2, Fifo.of_list c2_1)
+
+(*
 c) Un *tirage* à partir de deux FIFO (f1,f2) consiste à prendre
    leurs premières valeurs respectives n1 et n2 (cf `Fifo.pop`),
    puis calculer la "différence" de n1 et n2 (comme auparavant),
