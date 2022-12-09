@@ -109,12 +109,28 @@ let tirage f1 f2 =
    let new_f1 = push n2 new_f1 in 
    let new_f2 = push d new_f2  in
    (d, new_f1, new_f2);; 
-   
+ 
 (*
 d) On commence alors par faire 165 tirages successifs en partant
    de (f1_init,f2_init). Ces tirages servent juste à mélanger encore
    les FIFO qui nous servent d'état de notre générateur pseudo-aléatoire,
    les entiers issus de ces 165 premiers tirages ne sont pas considérés.
+
+*)
+
+(* d) *)
+
+let tirage_succ f1 f2 = 
+   let rec tirer f1 f2 tab counter = 
+      if counter > 0 
+      then 
+         let (x, new_f1, new_f2) = tirage f1 f2 in 
+         tirer new_f1 new_f2 (x :: tab) (counter - 1)
+      else 
+         (List.rev (tab), f1, f2)
+   in tirer f1 f2 [] 165
+
+(*
 
 e) La fonction de tirage vue précédemment produit un entier dans
    [0..randmax[. Pour en déduire un entier dans [0..limit[ (ou limit est
