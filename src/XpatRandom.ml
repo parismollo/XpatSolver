@@ -103,11 +103,11 @@ c) Un *tirage* à partir de deux FIFO (f1,f2) consiste à prendre
 
 
 let tirage f1 f2 =
-   let (n1, new_f1) = pop f1   in
-   let (n2, new_f2) = pop f2   in
+   let (n1, new_f1) = Fifo.pop f1   in
+   let (n2, new_f2) = Fifo.pop f2   in
    let d = compute_diff n1 n2  in 
-   let new_f1 = push n2 new_f1 in 
-   let new_f2 = push d new_f2  in
+   let new_f1 = Fifo.push n2 new_f1 in 
+   let new_f2 = Fifo.push d new_f2  in
    (d, new_f1, new_f2);; 
  
 (*
