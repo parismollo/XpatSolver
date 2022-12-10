@@ -153,7 +153,52 @@ e) La fonction de tirage vue précédemment produit un entier dans
 Un exemple complet de génération d'une permutation (pour la graine 1)
 est maintenant donné dans le fichier XpatRandomExemple.ml, étape par étape.
 
+   1. use reduce
+   2. l =  liste successifs des nombres entre 0 - 51
+   3. tirage dans [0, ..., 52[ donne la derniere position de notre permutation.
+   4. on enleve le nombre de la list l.
+   5. tirage parmi [0, ....51[ - position du avant dernier.
+   6. on continue à tirer des positions valides dans la liste résiduelle, jusqu'à 
+   dernier element de la liste residuelle, qui est le premier de celui de la permutation
 *)
+
+(* e) *)
+
+let generate_52_tirages f1 f2 = 
+   (* 1. generate 52 tirages *)
+   let rec generator f1 f2 counter tab =
+      if counter > 0 then
+         (* peut etre ici faut utiliser f1 et f2 *)
+         let (x, new_f1, new_f2) = tirage f1 f2 in
+         generator new_f1 new_f2 (counter - 1) (x::tab)
+      else
+         (List.rev(tab), new_f1, new_f2) 
+   in generator f1 f2 52 []
+
+let modify_element idx v = 
+   reduce v (52-idx) 
+
+let reduced_52 tab = 
+   List.mapi (fun idx x -> modify_element idx x) tab
+
+let gen_perm t1 =
+   (* t1 contains positions of elements *)
+   let t2 = List.init 52 (fun x -> x) in
+   (* t2 contains elements to get at position from t1 *)
+   let rec generate_perm_aux t1 t2 t3 counter idx = 
+      if counter > 0 then
+         let x = List.nth t1 idx in
+         (*print_string "\nx: ";
+         print_int  x;*)
+         let e = List.nth t2 x in
+         (*print_string " e: ";
+         print_int  e;*)
+         let new_t2 = List.filter (fun x -> if x = e then false else true) t2 in
+         generate_perm_aux t1 new_t2 (e::t3) (counter -1) (idx+1)
+      else 
+         t3
+   in generate_perm_aux t1 t2 [] (List.length t1) 0
+
 
 (* For now, we provide a shuffle function that can handle a few examples.
    This can be kept later for testing your implementation. *)
@@ -206,5 +251,7 @@ let shuffle_test = function
   | _ -> failwith "shuffle : unsupported number (TODO)"
 
 
-let shuffle n =
-  shuffle_test n (* TODO: changer en une implementation complete *)
+(* let shuffle n =
+   let a = create_paires n in *)
+   
+  (* shuffle_test n TODO: changer en une implementation complete *)
