@@ -251,7 +251,12 @@ let shuffle_test = function
   | _ -> failwith "shuffle : unsupported number (TODO)"
 
 
-(* let shuffle n =
-   let a = create_paires n in *)
+let shuffle n =
+   let paires = create_paires n in
+   let (f1_init, f2_init) = sort_and_fifo paires in
+   let (res, new_f1, new_f2) = tirage_succ f1_init f2_init in
+   let (result, _, _) = generate_52_tirages new_f1 new_f2 in
+   let reduced_result = reduced_52 result in
+   gen_perm reduced_result 
    
   (* shuffle_test n TODO: changer en une implementation complete *)
