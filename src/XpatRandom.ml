@@ -172,7 +172,7 @@ let generate_52_tirages f1 f2 =
          let (x, new_f1, new_f2) = tirage f1 f2 in
          generator new_f1 new_f2 (counter - 1) (x::tab)
       else
-         (List.rev(tab), new_f1, new_f2) 
+         (List.rev(tab), f1, f2) 
    in generator f1 f2 52 []
 
 let modify_element idx v = 

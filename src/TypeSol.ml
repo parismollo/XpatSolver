@@ -1,8 +1,9 @@
 (* type solitaire: nom, colonnes, registres, depot et historique *)
 type solitaire = {
+  (* TODO: convert cols and registers into card list Array.t *)
   name : string;
-  cols : int list Array.t;
-  reg : int list Array.t;
+  cols : card list Array.t;
+  reg : card list Array.t;
   dep : int Array.t;
   hist: int
 }
@@ -27,10 +28,10 @@ type game =
 let fill_col cols col_size index cards =
   let target_cards = List.filteri (fun idx card -> if idx < col_size then true else false) cards in
   let cards_left = List.filteri (fun idx card -> if idx >= col_size then true else false) cards in
-  let results = Array.set cols index target_cards in
+  (* TODO: convert target_cards into list of cards *)
+  let results = Array.set cols index (List.map (fun value -> Card.of_num value) target_cards) in
   (cols, cards_left)
   
-
 let rec fill_cols cols cards cardsPerCol index = 
   (*set each col in columns*)
   match cardsPerCol with
@@ -48,8 +49,9 @@ let fill_game_attrib game cards cardsPerCol =
   (* bakers:  52 cards to cols*)
   let (cols, cards_left) = fill_cols game.cols cards cardsPerCol 0 in
   if (game.name = "seahaven") then 
-    let _ = Array.set game.reg 0 [(List.hd cards_left)] in
-    let _ = Array.set game.reg 1 [(List.hd (List.rev cards_left))] in
+    (* TODO: convert cards_left into cards list *)
+    let _ = Array.set game.reg 0 [(Card.of_num (List.hd cards_left))] in
+    let _ = Array.set game.reg 1 [(Card.of_num(List.hd (List.rev cards_left)))] in
     {game with cols = cols}
   else
     {game with cols = cols}
