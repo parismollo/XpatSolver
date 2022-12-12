@@ -41,27 +41,78 @@ let find_card card game =
     results
 
 
+let send_card_V card game is_cols = 
+  (* if is_cols true then look into columns else look into registers *)
+  (* mouvement vers la première colonne vide disponible *)
+  let cols = if is_cols = true then game.cols else game.reg in
+  let rec loop card cols col_no = 
+    if col_no >= Array.length cols
+      then
+        (false, card)
+    else
+      if List.length cols.(col_no) = 0
+        then
+          let _ = Array.set cols col_no [card] in
+          (true, card)
+      else
+        loop card cols (col_no+1)
+  in loop card cols 0 
+      
+
+let send_card_T card game = 
+  (* mouvement vers un registre temporaire inoccupé *)
+  send_card_V card game false
+
+let send_card_int card game c_destination = 
+  (* c_destination indicates a card in the top of a column, it is in this column that we have to add our card *)
+  let cols = game.cols in
+  (* card: card to add; c_destination: number of card that we looking for; cols: game cols; col_no: auxiliary variable *)
+  let rec search_dest card c_destination cols col_no = 
+    if col_no >= Array.length cols
+    then
+      (false, card)
+    else
+      if(List.length cols.(col_no) > 0)
+        then
+          (* find card_destination column *)
+          let top_card = Card.to_num (List.hd (cols.(col_no))) in
+          if top_card = c_destination 
+            then
+              (* add to list *)
+              let _ = Array.set cols col_no (card :: cols.(col_no)) in
+              (true, card)
+          else
+            search_dest card c_destination cols (col_no+1)
+      else
+        search_dest card c_destination cols (col_no+1)
+  in search_dest card c_destination cols 0 
+
+
 let send_card card target game =
+  match target with 
   (* target: V *)
+  | "V" -> send_card_V card game true
   (* target: T *)
+  | "T" -> send_card_T card game
   (* target: int *)
-
-
+  | num -> send_card_int card game (int_of_string num)
+  
+  
 let run_move move game = 
   (* This function supposes that the move is valid *)
   (*1. find card (move.source) at the top of cols or registers *)
   (*2. store card in variable and remove it from current position *)
-  let find_results = find_card move.source game in 
+  let source_card = Card.of_num (int_of_string (move.source)) in
+  let find_results = find_card source_card game in 
   let (found, card) = find_results in
   (* [TODO]: 3. move card to target based on move.target *)
-  send_card card move.target game
+  send_card (Card.of_num card) move.target game
   
 let execute_move move game = 
   (* [TODO]: normalize *)
   let result_normalize = normalize in
   (* [TODO]: validate move according to game *)
   let result_validate = validate move game in
-  (* [TODO]: run move *)
   run_move move game
   
 
