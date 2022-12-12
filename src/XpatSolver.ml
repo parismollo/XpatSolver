@@ -40,7 +40,7 @@ let treat_game conf =
   List.iter (fun n -> Printf.printf "%s " (Card.to_string (Card.of_num n)))
     permut;
   print_newline ();
-  print_string "C'est tout pour l'instant. TODO: continuer...\n";
+  (* print_string "C'est tout pour l'instant. TODO: continuer...\n"; *)
   exit 0
 
 let main () =

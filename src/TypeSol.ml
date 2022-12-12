@@ -1,3 +1,5 @@
+open Card
+open Fifo
 (* type solitaire: nom, colonnes, registres, depot et historique *)
 type solitaire = {
   (* TODO: convert cols and registers into card list Array.t *)

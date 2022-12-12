@@ -1,3 +1,5 @@
+open Card
+open Fifo
 (** In Xpat2, the index of the game is a seed used to shuffle
     pseudo-randomly the cards.
     The shuffle function emulates this permutation generator.
