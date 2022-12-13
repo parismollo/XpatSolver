@@ -65,7 +65,7 @@ let prepare_game game_name cards nbcols cardsPerCol nbreg nbdepot=
   (* initiate all attributes and call fill_gamme_attrib function *)
   let name = game_name in
   let history = 0 in
-  let dep = Array.make nbdepot 0 in
+  let dep = Array.make nbdepot (-1) in (*ATTENTION WITH -1 MAY BREAK SOMETHING LATER*)
   let registers = Array.make nbreg [] in
   let columns = Array.make nbcols [] in 
   let game = {name=name; cols=columns; reg=registers; dep=dep; hist=history} in

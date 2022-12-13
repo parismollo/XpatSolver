@@ -36,6 +36,7 @@ let find_card card game =
   then
     (found, card)
   else
+    (* search card in reg *)
     let reg = game.reg in
     let results = search_cols card_no reg 0 in
     results
@@ -105,11 +106,100 @@ let run_move move game =
   let source_card = Card.of_num (int_of_string (move.source)) in
   let find_results = find_card source_card game in 
   let (found, card) = find_results in
-  (* [TODO]: 3. move card to target based on move.target *)
+  (*3. move card to target based on move.target *)
   send_card (Card.of_num card) move.target game
-  
+
+(* 1 to 13, valet=11, dame=12, roi=13 *)
+(* [Trefle;Pique;Coeur;Carreau] *)
+let next_aux idx = 
+  match idx with 
+  | 0 -> (1, Trefle)
+  | 1 -> (1, Pique)
+  | 2 -> (1, Coeur)
+  | 3 -> (1, Carreau)
+
+
+let next idx card_no = 
+  if card_no = -1 then 
+    next_aux idx
+  else 
+    let number, rank = of_num card_no in
+    if number < 13
+    then
+      (number+1, rank)
+    else
+      (* Attention to this case - it may brake later*)
+      (-1, rank)
+
+let get_next_tab game = 
+  (* 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13*)
+  (* 0 for clubs 1 for diamonds 2 for hearts 3 for spades *)
+  Array.mapi (fun x y -> next x y) game.dep
+
+
+let check_match next_tab card = 
+  let rec loop next_tab card counter = 
+    if counter >= Array.length next_tab then
+      (false, (-1, Trefle))
+    else
+      let current_card = next_tab.(counter) in
+      let current_card_no = Card.to_num current_card in
+      let card_no = Card.to_num card in
+      if card_no = current_card_no then
+        (true, card)
+      else 
+        loop next_tab card (counter+1)
+  in loop next_tab card 0 
+
+let scan_cols game next_tab is_cols = 
+  (* card t <- for each column get the top  *)
+  let cols = if is_cols = true then game.cols else game.reg in
+  let rec loop cols next_tab counter = 
+    (* loop and for each element in top see if there is a match *)
+    if counter >= Array.length cols
+      then
+        (false, (-1, Trefle))
+    else
+      if(List.length cols.(counter) > 0)
+        then
+          let card = List.hd (cols.(counter)) in
+          (* [TODO]: check_math: see if there is any match with top return boolean and card*)
+          let (matched, card) = check_match next_tab card in
+          if matched = true
+            then
+              (* if there is a match, then remove card from colum and return card *)
+              let _ = Array.set cols counter (List.tl cols.(counter)) in
+              (true, card)
+            else
+              loop cols next_tab (counter+1) 
+      else
+        loop cols next_tab (counter+1)
+  in loop cols next_tab 0
+
+let scan game next_tab = 
+  let (found_cols, card) = scan_cols game next_tab true in
+  if found_cols = true
+    then
+      (found_cols, card)
+  else 
+    scan_cols game next_tab false
+
+let normalize game = 
+(*Get next tab *)
+let next_tab = get_next_tab game in
+(* [TODO]: Scan for candidate *)
+let results = scan game next_tab in
+let (found, candidate) = results in
+(* [TODO]: Place candidate  *)
+if found = true then
+  place_candidate candidate
+else 
+  false
+
+
 let execute_move move game = 
-  (* [TODO]: normalize *)
+  (* [TODO]: normalize. Attention: this might have to
+    happen many times until no more normalizes *)
   let result_normalize = normalize in
   (* [TODO]: validate move according to game *)
   let result_validate = validate move game in
