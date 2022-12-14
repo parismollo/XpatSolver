@@ -1,3 +1,4 @@
+open Sys
 
 (* source: card to move *)
 (* target: card destination *)
@@ -215,14 +216,23 @@ let rec normalize game =
   else normalize game
 
 
+let get_color suit = 
+  match suit with 
+  |Pique|Trefle -> "Noir"
+  |Carreau|Coeur -> "Rouge"
+
 let verify_conditions source_card target_card any_color same_color = 
-  let (s_number, s_color) = source_card in
-  let (t_number, t_color) = target_card in
+  (* [TODO: ?BUG?]: same color or same type ....???? *)
+  let (s_number, s_type) = source_card in
+  let (t_number, t_type) = target_card in
   let first_condition = if s_number = t_number - 1 then true else false in
   let second_condition = 
+    let s_color = get_color s_type in
+    let t_color = get_color t_type in
     if any_color = true then
       true
     else
+    (* 2 Couleurs. Noir = Piques, Trefle. Rouge= Coeur, Carre *)
     if same_color = true then
       if s_color = t_color then true else false
     else 
@@ -298,17 +308,47 @@ let execute_move move game =
     results
   else false
   
+let all_cols_empty game = 
+  (* [TODO:OPT] use for all instead*)
+  let cols = game.cols in
+  let not_empty =  Array.exists (fun x -> if List.length x > 0 then true else false) cols in
+  if not_empty then false else true
 
+let all_regs_empty game =
+  (* [TODO:OPT]: replicated code -> extends all_cols_empty *)
+  let regs = game.reg in
+  let not_empty =  Array.exists (fun x -> if List.length x > 0 then true else false) regs in
+  if not_empty then false else true
+
+
+let is_the_king card_no = 
+  let (number, rank) = Card.of_num card_no in
+  if number = 13 then true else false
+
+let check_depots game =
+  (* for each depot get card and check card number if != 13 not complete, i.e the top card must be the 13 of something*)
+  let depot = game.dep in
+  Array.for_all (fun x -> is_the_king x) depot
+
+let game_over game = 
+  let results_from_cols = all_cols_empty game in
+  if results_from_cols = false then false
+  else let results_from_regs = all_regs_empty game in
+  if results_from_regs = false then false
+  else check_depots game   
+  
 (* Read file and execute each line *)
 let rec read_and_execute file game =
   try
     let line = input_line file in
     let player_move = get_player_move line in
     let result = execute_move player_move game in
-    (* [TODO]: check if config is successful *)
-    (* [TODO]: if result = "Bad" then close and exit result*)
-    (* [TODO]: if result = "Good" then close and exit result  *)
-    read_and_execute file
+    if result = false then 
+      (* [TODO] add N value for echec *)
+      print_string "ECHEC";
+      exit 1
+    else
+      read_and_execute file
   with 
     End_of_file -> ()
 
@@ -317,7 +357,8 @@ let solver_routine game config =
   (* Open solutions file *)
   let solutions = open_in config.mode in
   (* Read and execute file content *)
-  let read_and_execute solutions game
+  read_and_execute solutions game
+  (* [TOOD]: check game_over result *)
 
 
 (* Start game with config type *)
