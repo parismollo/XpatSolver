@@ -184,22 +184,40 @@ let scan game next_tab =
   else 
     scan_cols game next_tab false
 
-let normalize game = 
+
+let place_candidate game candidate =
+  (* Attention, I used the word rank before to design the card type but maybe *)
+  (* the best word for that is suit *)
+  let (_, suit) = candidate in
+  let card_no = (Card.to_num candidate) in
+  match suit with 
+  (* maybe return the card? *)
+  | Trefle -> let _ = Array.set game.dep 0 card_no in true
+  | Pique -> let _ = Array.set game.dep 1 card_no in true
+  | Coeur -> let _ = Array.set game.dep 2 card_no in true
+  | Carreau -> let _ = Array.set game.dep 3 card_no in true
+
+
+let normalize_aux game = 
 (*Get next tab *)
 let next_tab = get_next_tab game in
-(* [TODO]: Scan for candidate *)
+(*Scan for candidate *)
 let results = scan game next_tab in
 let (found, candidate) = results in
 (* [TODO]: Place candidate  *)
 if found = true then
-  place_candidate candidate
+  place_candidate game candidate
 else 
   false
 
+let rec normalize game = 
+  let results = normalize_aux game in
+  if results = false then false
+  else normalize game
 
 let execute_move move game = 
   (* [TODO]: normalize. Attention: this might have to
-    happen many times until no more normalizes *)
+    happen many times until no more normalizes - maybe rec *)
   let result_normalize = normalize in
   (* [TODO]: validate move according to game *)
   let result_validate = validate move game in
