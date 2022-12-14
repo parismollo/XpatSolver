@@ -41,6 +41,25 @@ let rec fill_cols cols cards cardsPerCol index =
   | col_size :: t_cardsPerCol -> let (updated_cols, cards_left) = fill_col cols col_size index cards in
   fill_cols updated_cols cards_left t_cardsPerCol (index+1)
 
+let update_kings col = 
+  let kings = List.filter (
+    fun x -> let (number, color) = x in
+    if number = 13 then true else false
+  ) col 
+  in 
+  if List.length kings > 0 then
+    let no_kings = List.filter (
+      fun x -> let (number, color) = x in
+      if number <> 13 then true else false
+    ) col
+    in
+    List.append no_kings kings 
+  else
+    col
+
+let dethronement cols = 
+  (* this function put alls kings to the bottom of the column (this is only applied for bakers) *)
+  Array.map (fun x -> update_kings x) cols
 
 let fill_game_attrib game cards cardsPerCol = 
   (* fill_game : return game solitaire *)
@@ -56,7 +75,11 @@ let fill_game_attrib game cards cardsPerCol =
     let _ = Array.set game.reg 1 [(Card.of_num(List.hd (List.rev cards_left)))] in
     {game with cols = cols}
   else
-    {game with cols = cols}
+    (* if bakers rearrange kings *)
+    if (game.name = "bakers") then
+      {game with cols = dethronement cols}
+    else
+      {game with cols = cols}
 
 
 

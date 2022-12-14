@@ -218,7 +218,7 @@ let rec normalize game =
 let verify_conditions source_card target_card any_color same_color = 
   let (s_number, s_color) = source_card in
   let (t_number, t_color) = target_card in
-  let first_condition = if s_number < t_number then true else false in
+  let first_condition = if s_number = t_number - 1 then true else false in
   let second_condition = 
     if any_color = true then
       true
@@ -260,7 +260,7 @@ let validate_sea move game =
   | "T" -> true (*[ATTENTION]: not sure about this*)
   | _ -> general_rule_1 move game false true
 
-let validate_bakers move game = 
+let validate_midnight move game = 
   (* 
   Rule #1: Comme pour Seahaven, une colonne ne peut recevoir que la carte immédiatement inférieure et de même couleur.
   Rule #2: Par contre ici une colonne vide n'est *pas* remplissable.  
@@ -270,12 +270,10 @@ let validate_bakers move game =
   | "T" -> false
   | _ -> general_rule_1 move game false true
 
-let validate_midnight move game = 
+let validate_bakers move game = 
   (*  
   Rule #1: Une colonne peut recevoir une carte immédiatement inférieure, peu importe sa couleur.
   Rule #2: Une colonne vide n'est *pas* remplissable.
-  [TODO:URGENT] Lors de la distribution initiale, les rois sont descendus au fond de leurs colonnes 
-  (attention il peut y avoir plusieurs rois dans une même colonne).
   *)
   match move.target with
   | "V" -> false
@@ -307,6 +305,7 @@ let rec read_and_execute file game =
     let line = input_line file in
     let player_move = get_player_move line in
     let result = execute_move player_move game in
+    (* [TODO]: check if config is successful *)
     (* [TODO]: if result = "Bad" then close and exit result*)
     (* [TODO]: if result = "Good" then close and exit result  *)
     read_and_execute file
