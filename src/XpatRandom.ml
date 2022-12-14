@@ -261,4 +261,3 @@ let shuffle n =
    let reduced_result = reduced_52 result in
    gen_perm reduced_result 
    
-  (* shuffle_test n TODO: changer en une implementation complete *)

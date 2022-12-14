@@ -107,7 +107,8 @@ let run_move move game =
   let find_results = find_card source_card game in 
   let (found, card) = find_results in
   (*3. move card to target based on move.target *)
-  send_card (Card.of_num card) move.target game
+  if found = false then (false, Card.of_num card)
+  else send_card (Card.of_num card) move.target game
 
 (* 1 to 13, valet=11, dame=12, roi=13 *)
 (* [Trefle;Pique;Coeur;Carreau] *)
@@ -236,63 +237,50 @@ let general_rule_1 move game any_color same_color =
   (* Check if source_card is valid according to the top_card value and color*)
   verify_conditions source_card target_card any_color same_color
 
-
 let validate_freecell move game = 
-  (* [TODO]: check move type if type is int then use rule 1 otherwise rule 2*)
-  if (*move to col*) then
-    general_rule_1 move game false false
-  else
-  (check_freecell_rule_2 move game)
-  
   (*  
   Rule #1: Une colonne non vide ne peut recevoir qu'une carte immédiatement inférieure, et de couleur alternée.
   Par exemple une colonne ayant un 3 de coeur à son sommet ne pourra recevoir qu'un 2 de pique ou un 2 de trèfle.
   Rule #2: Une colonne vide peut recevoir n'importe quelle carte, de même pour un registre.  
  *)
-
-  "Nothing so far ..."
+  match move.target with 
+  | "V" -> true
+  | "T" -> true
+  | _ -> general_rule_1 move game false false 
 
 let validate_sea move game = 
-  (* [TODO]: check move type if type is int then use rule 1 otherwise rule 2*)
-  if (*move to col*) then
-    general_rule_1 move game false true
-  else (check_sea_rule_2 move game)
-  
   (*   
   Rule #1: Une colonne non vide ne peut recevoir que la carte immédiatement inférieure et de même couleur. 
   Par exemple une colonne ayant un 3 de coeur à son sommet ne pourra recevoir qu'un 2 de coeur.
   Rule #2: Une colonne vide ne peut recevoir qu'un Roi.
   *)
-
-  "Nothing so far ..."
+  match move.target with
+  | "V" -> let (value, color) = Card.of_num (int_of_string move.source) in 
+    if value = 13 then true else false
+  | "T" -> true (*[ATTENTION]: not sure about this*)
+  | _ -> general_rule_1 move game false true
 
 let validate_bakers move game = 
-  (* [TODO]: check move type if type is int then use rule 1 otherwise rule 2*)
-  if (*move to col*) then
-    general_rule_1 move game false true
-  else (check_baker_rule_2 move game)
-  
   (* 
   Rule #1: Comme pour Seahaven, une colonne ne peut recevoir que la carte immédiatement inférieure et de même couleur.
   Rule #2: Par contre ici une colonne vide n'est *pas* remplissable.  
   *)
-
-  "Nothing so far ..."
+  match move.target with
+  | "V" -> false
+  | "T" -> false
+  | _ -> general_rule_1 move game false true
 
 let validate_midnight move game = 
-  (* [TODO]: check move type if type is int then use rule 1 otherwise rule 2*)
-  if (*move to col*) then
-    general_rule_1 move game true false
-  else (check_mid_rule_2 move game)
-  
   (*  
   Rule #1: Une colonne peut recevoir une carte immédiatement inférieure, peu importe sa couleur.
   Rule #2: Une colonne vide n'est *pas* remplissable.
-  [TODO URGENT] Lors de la distribution initiale, les rois sont descendus au fond de leurs colonnes 
+  [TODO:URGENT] Lors de la distribution initiale, les rois sont descendus au fond de leurs colonnes 
   (attention il peut y avoir plusieurs rois dans une même colonne).
   *)
-
-  "Nothing so far ..."
+  match move.target with
+  | "V" -> false
+  | "T" -> false
+  | _ -> general_rule_1 move game true false
 
 let validate move game = 
   let game_name = game.name in
@@ -304,11 +292,13 @@ let validate move game =
 
 let execute_move move game = 
   (*normalize*)
-  let result_normalize = normalize in
-  (* [TODO]: validate move according to game *)
+  let result_normalize = normalize game in
+  (* validate move according to game *)
   let result_validate = validate move game in
-  (*run move*)
-  run_move move game
+  if result_validate = true then
+    let (results, card) = run_move move game in
+    results
+  else false
   
 
 (* Read file and execute each line *)

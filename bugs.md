@@ -1,0 +1,1 @@
+- Removing and placing a card in the same spot is a valid move (in this code) ... not sure its what expected from teacher.
