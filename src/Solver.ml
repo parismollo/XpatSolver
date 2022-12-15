@@ -251,16 +251,16 @@ let verify_conditions_freecell source_card target_card any_color same_color =
   let (t_number, t_type) = target_card in
   let first_condition = if s_number = t_number - 1 then true else false in
   let second_condition = 
-    (* let s_color = get_color s_type in
-    let t_color = get_color t_type in *)
+    let s_color = get_color s_type in
+    let t_color = get_color t_type in
     if any_color = true then
       true
     else
     (* 2 Couleurs. Noir = Piques, Trefle. Rouge= Coeur, Carre *)
     if same_color = true then
-      if s_type = t_type then true else false
+      if s_color = t_color then true else false
     else 
-    if s_type <> t_type then true else false
+    if s_color <> t_color then true else false
   in first_condition && second_condition
 
 let general_rule_1 move game any_color same_color = 
@@ -277,7 +277,7 @@ let general_rule_1_freecell move game any_color same_color =
   let target_card = Card.of_num (int_of_string (move.target)) in
   let source_card = Card.of_num (int_of_string (move.source)) in
   (* Check if source_card is valid according to the top_card value and color*)
-  verify_conditions source_card target_card any_color same_color
+  verify_conditions_freecell source_card target_card any_color same_color
 
 let validate_freecell move game = 
   (*  
