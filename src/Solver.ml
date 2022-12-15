@@ -3,41 +3,6 @@ open TypeSol
 open Card
 open XpatRandom
 
-
-
-
-let rec affichage_regs registers =
-  match registers with 
-  | [] -> ()
-  | None :: sub -> affichage_regs sub
-  | Some card :: sub ->
-    Printf.printf "%s ;%!" (Card.to_string card);
-    affichage_regs sub
-
-let rec affichage_list list =
-  match list with 
-  | [] -> ()
-  | card :: sub_list ->
-    Printf.printf "%s ;%!" (Card.to_string card);
-    affichage_list sub_list
-
-let rec affichage_list_list col_or_depots = 
-  match col_or_depots with
-  | [] -> ()
-  | col :: sub -> Printf.printf "\n | "; affichage_list col; affichage_list_list sub 
-
-
-let affichage game = 
-  let registers_list = FArray.to_list game.registers in
-  let columns_list = FArray.to_list game.columns in 
-  let depots_list = FArray.to_list game.depots in
-  Printf.printf "Registers : \n";
-  affichage_regs registers_list;
-  Printf.printf "\nColumns : \n";
-  affichage_list_list columns_list;
-  Printf.printf "\nDepots : \n";
-  affichage_list_list depots_list;
-
 (* source: card to move *)
 (* target: card destination *)
 type player_move = {source: string ; target: string} 
@@ -407,6 +372,7 @@ let check_depots game =
   Array.for_all (fun x -> is_the_king x) depot
 
 let game_over game counter = 
+  let _ = normalize game in
   let results_from_cols = all_cols_empty game in
   if results_from_cols = false then (false, counter)
   else let results_from_regs = all_regs_empty game in
@@ -418,7 +384,7 @@ let game_over game counter =
 
 
 let print_player_move move = 
-  let _ = Printf.printf "MOVE: {source: %s; target: %s} " move.source move.target in 
+  let _ = Printf.printf "MOVE: {source: %s; target: %s} \n" move.source move.target in 
   ()
 (* Read file and execute each line *)
 let rec read_and_execute file game counter =
@@ -430,6 +396,7 @@ let rec read_and_execute file game counter =
     (* TODO: à la fin normalizer *)
     let result = execute_move player_move game in
     if result = false then
+      let _ = Printf.printf "EXECUTE FALSE" in
       (false, counter)
       (* [TODO] add N value for echec *)
       (* print_string "ECHEC"; *)
@@ -458,6 +425,7 @@ let start_game seed game mode =
   (* [TODO]: show game config *)
   let (result, counter) = solver_routine g mode in
   if result = true then
-    (Printf.printf "SUCCESS";)
-  else Printf.printf "ECHEC %n" counter;
+    (Printf.printf "\nSUCCES\n";)
+  else 
+    (Printf.printf "\nECHEC %n\n" counter; exit 1);
   ()
