@@ -3,6 +3,41 @@ open TypeSol
 open Card
 open XpatRandom
 
+
+
+
+let rec affichage_regs registers =
+  match registers with 
+  | [] -> ()
+  | None :: sub -> affichage_regs sub
+  | Some card :: sub ->
+    Printf.printf "%s ;%!" (Card.to_string card);
+    affichage_regs sub
+
+let rec affichage_list list =
+  match list with 
+  | [] -> ()
+  | card :: sub_list ->
+    Printf.printf "%s ;%!" (Card.to_string card);
+    affichage_list sub_list
+
+let rec affichage_list_list col_or_depots = 
+  match col_or_depots with
+  | [] -> ()
+  | col :: sub -> Printf.printf "\n | "; affichage_list col; affichage_list_list sub 
+
+
+let affichage game = 
+  let registers_list = FArray.to_list game.registers in
+  let columns_list = FArray.to_list game.columns in 
+  let depots_list = FArray.to_list game.depots in
+  Printf.printf "Registers : \n";
+  affichage_regs registers_list;
+  Printf.printf "\nColumns : \n";
+  affichage_list_list columns_list;
+  Printf.printf "\nDepots : \n";
+  affichage_list_list depots_list;
+
 (* source: card to move *)
 (* target: card destination *)
 type player_move = {source: string ; target: string} 
@@ -232,19 +267,46 @@ let verify_conditions source_card target_card any_color same_color =
   let (t_number, t_type) = target_card in
   let first_condition = if s_number = t_number - 1 then true else false in
   let second_condition = 
-    let s_color = get_color s_type in
-    let t_color = get_color t_type in
+    (* let s_color = get_color s_type in
+    let t_color = get_color t_type in *)
     if any_color = true then
       true
     else
     (* 2 Couleurs. Noir = Piques, Trefle. Rouge= Coeur, Carre *)
     if same_color = true then
-      if s_color = t_color then true else false
+      if s_type = t_type then true else false
     else 
-    if s_color <> t_color then true else false
+    if s_type <> t_type then true else false
+  in first_condition && second_condition
+
+
+let verify_conditions_freecell source_card target_card any_color same_color = 
+  (* [TODO: ?BUG?]: same color or same type ....???? *)
+  let (s_number, s_type) = source_card in
+  let (t_number, t_type) = target_card in
+  let first_condition = if s_number = t_number - 1 then true else false in
+  let second_condition = 
+    (* let s_color = get_color s_type in
+    let t_color = get_color t_type in *)
+    if any_color = true then
+      true
+    else
+    (* 2 Couleurs. Noir = Piques, Trefle. Rouge= Coeur, Carre *)
+    if same_color = true then
+      if s_type = t_type then true else false
+    else 
+    if s_type <> t_type then true else false
   in first_condition && second_condition
 
 let general_rule_1 move game any_color same_color = 
+  (* [Attention]: It supposes that move is for a specific card in column *)
+  (* [Attention]: This rule only apply if move is to a specific column *)
+  let target_card = Card.of_num (int_of_string (move.target)) in
+  let source_card = Card.of_num (int_of_string (move.source)) in
+  (* Check if source_card is valid according to the top_card value and color*)
+  verify_conditions source_card target_card any_color same_color
+
+let general_rule_1_freecell move game any_color same_color = 
   (* [Attention]: It supposes that move is for a specific card in column *)
   (* [Attention]: This rule only apply if move is to a specific column *)
   let target_card = Card.of_num (int_of_string (move.target)) in
@@ -261,7 +323,7 @@ let validate_freecell move game =
   match move.target with 
   | "V" -> true
   | "T" -> true
-  | _ -> general_rule_1 move game false false 
+  | _ -> general_rule_1_freecell move game false false 
 
 let validate_sea move game = 
   (*   
@@ -310,9 +372,17 @@ let execute_move move game =
   (* validate move according to game *)
   let result_validate = validate move game in
   if result_validate = true then
+    (* let _ = (Printf.printf "VALIDATE IS TRUE";) in *)
     let (results, card) = run_move move game in
-    results
-  else false
+    if results = true then 
+      (* let _ = (Printf.printf "RUN MOVE IS TRUE";) in *)
+      results 
+    else 
+      (* let _ = (Printf.printf "RUN MOVE IS FALSE";) in  *)
+      results
+  else 
+    (* let _ = (Printf.printf "VALIDATE IS FALSE";) in *)
+    false
   
 let all_cols_empty game = 
   (* [TODO:OPT] use for all instead*)
@@ -336,43 +406,58 @@ let check_depots game =
   let depot = game.dep in
   Array.for_all (fun x -> is_the_king x) depot
 
-let game_over game = 
+let game_over game counter = 
   let results_from_cols = all_cols_empty game in
-  if results_from_cols = false then false
+  if results_from_cols = false then (false, counter)
   else let results_from_regs = all_regs_empty game in
-  if results_from_regs = false then false
-  else check_depots game   
+  if results_from_regs = false then (false, counter)
+  else
+    let res = check_depots game in
+    (res, counter)
   
+
+
+let print_player_move move = 
+  let _ = Printf.printf "MOVE: {source: %s; target: %s} " move.source move.target in 
+  ()
 (* Read file and execute each line *)
-let rec read_and_execute file game =
+let rec read_and_execute file game counter =
   try
     let line = input_line file in
+    (* let _ = Printf.printf "LINE: %s " line in  *)
     let player_move = tokenize line in
+    let _ = print_player_move player_move in
+    (* TODO: à la fin normalizer *)
     let result = execute_move player_move game in
-    if result = false then 
-      false
+    if result = false then
+      (false, counter)
       (* [TODO] add N value for echec *)
       (* print_string "ECHEC"; *)
       (* exit 1; *)
     else
-      read_and_execute file game
+      (* let _ = Printf.printf "NEXT " in *)
+      read_and_execute file game (counter+1)
   with 
-    End_of_file -> true
+    End_of_file -> game_over game counter
 
 (* Open solutions file and call read_and_execute *)
-let solver_routine game mode = 
+let solver_routine game mode =
   (* Open solutions file *)
   let solutions = open_in mode in
+  (* print_string mode; *)
   (* Read and execute file content *)
-  read_and_execute solutions game
-  (* [TOOD]: check game_over result *)
-
+  read_and_execute solutions game 1
 
 (* Start game with config type *)
 let start_game seed game mode =
   (* Create permutation p*)
-  let p = shuffle seed in
+  let p = seed in
   (* Create game g with p*)
   let g = create_game game p in
   (* Start solver_routine sr *)
-  solver_routine g mode
+  (* [TODO]: show game config *)
+  let (result, counter) = solver_routine g mode in
+  if result = true then
+    (Printf.printf "SUCCESS";)
+  else Printf.printf "ECHEC %n" counter;
+  ()

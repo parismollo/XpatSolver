@@ -1,5 +1,6 @@
 
 open XpatLib
+open Solver
 
 type game = Freecell | Seahaven | Midnight | Baker
 
@@ -32,6 +33,15 @@ let set_game_seed name =
 
 (* TODO : La fonction suivante est à adapter et continuer *)
 
+
+let test x = if x = 10 then true else false
+let get_game game = 
+  match game with
+  | Freecell -> "freecell"
+  | Baker -> "bakers"
+  | Midnight -> "midnight"
+  | Seahaven -> "seahaven"
+
 let treat_game conf =
   let permut = XpatRandom.shuffle conf.seed in
   Printf.printf "Voici juste la permutation de graine %d:\n" conf.seed;
@@ -40,8 +50,10 @@ let treat_game conf =
   List.iter (fun n -> Printf.printf "%s " (Card.to_string (Card.of_num n)))
     permut;
   print_newline ();
-  (* print_string "C'est tout pour l'instant. TODO: continuer...\n"; *)
-  exit 0
+  match conf.mode with 
+  |Check file -> start_game permut (get_game conf.game) file; exit 0
+  |_ -> failwith "Nothing here so far..."
+
 
 let main () =
   Arg.parse
@@ -52,5 +64,6 @@ let main () =
     set_game_seed (* pour les arguments seuls, sans option devant *)
     "XpatSolver <game>.<number> : search solution for Xpat2 game <number>";
   treat_game config
+
 
 let _ = if not !Sys.interactive then main () else ()

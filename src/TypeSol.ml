@@ -31,7 +31,7 @@ let fill_col cols col_size index cards =
   let target_cards = List.filteri (fun idx card -> if idx < col_size then true else false) cards in
   let cards_left = List.filteri (fun idx card -> if idx >= col_size then true else false) cards in
   (*convert target_cards into list of cards *)
-  let results = Array.set cols index (List.map (fun value -> Card.of_num value) target_cards) in
+  let results = Array.set cols index (List.rev(List.map (fun value -> Card.of_num value) target_cards)) in
   (cols, cards_left)
   
 let rec fill_cols cols cards cardsPerCol index = 
