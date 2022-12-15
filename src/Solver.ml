@@ -1,4 +1,7 @@
 open Sys
+open TypeSol
+open Card
+open XpatRandom
 
 (* source: card to move *)
 (* target: card destination *)
@@ -119,6 +122,8 @@ let next_aux idx =
   | 1 -> (1, Pique)
   | 2 -> (1, Coeur)
   | 3 -> (1, Carreau)
+  (* [ATTENTION] *)
+  | _ -> (-1, Trefle)
 
 
 let next idx card_no = 
@@ -297,6 +302,7 @@ let validate move game =
     | "seahaven" -> validate_sea move game
     | "bakers" -> validate_bakers move game
     | "midnight" -> validate_midnight move game
+    | _ -> validate_midnight move game
 
 let execute_move move game = 
   (*normalize*)
@@ -341,31 +347,32 @@ let game_over game =
 let rec read_and_execute file game =
   try
     let line = input_line file in
-    let player_move = get_player_move line in
+    let player_move = tokenize line in
     let result = execute_move player_move game in
     if result = false then 
+      false
       (* [TODO] add N value for echec *)
-      print_string "ECHEC";
-      exit 1
+      (* print_string "ECHEC"; *)
+      (* exit 1; *)
     else
-      read_and_execute file
+      read_and_execute file game
   with 
-    End_of_file -> ()
+    End_of_file -> true
 
 (* Open solutions file and call read_and_execute *)
-let solver_routine game config = 
+let solver_routine game mode = 
   (* Open solutions file *)
-  let solutions = open_in config.mode in
+  let solutions = open_in mode in
   (* Read and execute file content *)
   read_and_execute solutions game
   (* [TOOD]: check game_over result *)
 
 
 (* Start game with config type *)
-let start_game config =
+let start_game seed game mode =
   (* Create permutation p*)
-  let p = shuffle config.seed in
+  let p = shuffle seed in
   (* Create game g with p*)
-  let g = create_game config.game p in
+  let g = create_game game p in
   (* Start solver_routine sr *)
-  let result = solver_routine g config
+  solver_routine g mode
