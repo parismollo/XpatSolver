@@ -1,6 +1,7 @@
 
 open XpatLib
 open Solver
+open Finder
 
 type game = Freecell | Seahaven | Midnight | Baker
 
@@ -52,6 +53,7 @@ let treat_game conf =
   print_newline ();
   match conf.mode with 
   |Check file -> start_game permut (get_game conf.game) file; exit 0
+  |Search file -> start_finder permut (get_game conf.game) file; exit 0
   |_ -> failwith "Nothing here so far..."
 
 
