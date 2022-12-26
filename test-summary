@@ -1,0 +1,15 @@
+#!/bin/sh
+
+testdir () {
+  dir=$1  
+  nb=$(egrep '^  \$ ' $dir/*.t | wc -l)
+  ko=$(dune runtest $dir 2>&1 | egrep '^- ' | wc -l)
+  ok=$(expr $nb - $ko)
+  perc=$(expr $ok \* 100 / $nb)
+  echo "$dir : $ok / $nb (${perc}%)"
+}
+
+dune clean
+dune build 2> /dev/null || { echo "dune build failed! exiting..."; exit 1; }
+testdir tests/I
+testdir tests/II

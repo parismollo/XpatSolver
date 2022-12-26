@@ -35,7 +35,7 @@ let set_game_seed name =
 (* TODO : La fonction suivante est à adapter et continuer *)
 
 
-let test x = if x = 10 then true else false
+
 let get_game game = 
   match game with
   | Freecell -> "freecell"

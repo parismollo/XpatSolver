@@ -9,3 +9,6 @@ clean:
 
 test:
 	dune runtest
+
+summary:
+	@./test-summary
