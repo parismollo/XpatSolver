@@ -7,7 +7,7 @@ open Solver
 let write_solution (history:player_move list) (file:string) : unit = 
   let oc = open_out file in (*file open with write mode*)
   let write_move (move:player_move) : unit = (*write a move in a file followed by a newline*)
-    output_string oc (player_move ^ "\n") in
+    output_string oc (move.source ^ " " ^ move.target "\n") in
     List.iter write_move history; close_out oc (*iterates over the list of words and writes each word to the file*)
   ()
 
