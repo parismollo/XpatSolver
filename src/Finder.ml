@@ -54,24 +54,37 @@ let get_all_tops game =
     List.filter (fun x -> if x = -1 then false else true) (Array.to_list (Array.map (fun x -> if List.length x > 0 then (to_num (List.hd x)) else -1) game.reg)) in
   all_cols @ all_reg;;
   
+let rec get_possible_moves game mvs_top results = 
+  match mvs_top with
+  | [] -> results
+  | move :: tail -> 
+      let game_cpy = copy_game game in
+      let valid = execute_move move game_cpy in
+      if valid = true then
+        let score = get_score game_cpy in
+        get_possible_moves game tail ((true, move, game_cpy, score) :: results)
+      else 
+        get_possible_moves game tail results
+;;
 
+let get_mvs_top top_card_src game = 
+  let all_cols = 
+    List.filter (fun x -> if x = -1 then false else true)(Array.to_list (Array.map (fun x -> if List.length x > 0 then (to_num (List.hd x)) else -1) game.cols)) in
+  let rec loop all_cols = 
+    match all_cols with
+    | [] -> []
+    | top_card_target :: tail -> [{source=top_card_src; target= string_of_int top_card_target}] @ loop tail in
+  loop all_cols
+;;
+   
 let apply_third_move_type (top_card:card) (game:solitaire) : (bool * player_move * solitaire *  int) list = 
-  (* [TODO] *)
-  (* let game_cpy = copy game in
-  let list  = [] in
-  for each col in game_cpy:
-      if  col not empty:
-          let move = {source=top_card; target=col.top_card}
-          let res = execute_move move game_cpy 
-          if res = true then 
-              let score = get_score game
-              list.add((true, move, game_cpy, score))
-          else 
-              list.add((false, ....))
-        else
-            list.add((false, ....)
-  return filter(list, true) #return only true *)
-  (* [(true, {source="12"; target="T"}, game, 2); (false, {source="15"; target="T"}, game, 10)];; *)
+  (* 1. make a list of moves based on every top_card *)
+  (* eg. for all columns we would have a list of {source=top_card; target=col.top_card} *)
+  let top_card_src = string_of_int ((to_num top_card)) in
+  let mvs_top = get_mvs_top top_card_src game in
+  (* 2. then for each move, execute the move in a game and if valid store the (valid, move, game_cpy, score)*)
+  let possible_moves = get_possible_moves game mvs_top in
+  possible_moves
   
 let apply_second_move_type (top_card:card) (game:solitaire) : (bool * player_move * solitaire *  int) = 
   let top_card_int_str = string_of_int ((to_num top_card)) in
