@@ -21,12 +21,6 @@ let compare_solitaires (game1 : solitaire) (game2 : solitaire) : int =
     Stdlib.compare game1.cols game2.cols (* 0 if equal. Otherwise a number != 0 *)
   else
     registers_equal;;
-
-let copy_game (game:solitaire) : solitaire = 
-  let cols_copy = Array.copy sol.cols in
-  let reg_copy = Array.copy sol.reg in
-  let dep_copy = Array.copy sol.dep in
-  {name = sol.name; cols = cols_copy; reg = reg_copy; dep = dep_copy; hist = sol.hist}
   
 let get_score (game:solitaire) : int = 
   let dep = game.dep in
@@ -34,7 +28,7 @@ let get_score (game:solitaire) : int =
     match dep with
     | [] -> total
     | -1 :: tl -> sum tl (total)
-    | x :: tl -> sum tl (total+x) 
+    | x :: tl -> let (value, rank) = of_num x in sum tl (total+value) 
   in sum (Array.to_list dep) 0
 
 let update_visited_states visited_array new_visited_state = 
@@ -132,7 +126,7 @@ let get_card_moves (game:solitaire) (top_card:card) : (bool * player_move * soli
       let (bool, move, game, score) = x in
       if bool = false then false else true) all_results;;
 
-let get_all_poss_moves game =
+let get_next_moves (game:solitaire) : (bool * player_move * solitaire * int) list =
   (* ATTENTION: Array.append will return a new array!! *)
   (*
     This function will get all possible moves from the "game" current state
@@ -147,6 +141,50 @@ let get_all_poss_moves game =
     |top_card :: tl -> (get_card_moves game top_card) @ loop tl in
   loop (List.map (fun x -> of_num x) list);;
 
+
+let filter_next_steps next_steps visited_games : (bool * player_move * solitaire * int) list = 
+  (* Filter out unvalid moves that will lead to an already visited state *)
+  (* Remove from next steps all visited states *)
+  (* Apply filter for each element that compare if inside visited_states and send false if that's the case *)
+  List.filter (fun x -> 
+    let (valid, move, game_state, score) = x in
+    if States.mem game_state visited_games = true then false else true
+    ) next_steps
+
+let sort_by_score filtered_nxt_stps = 
+  (* [ATTENTION: not tested] *)
+  let compare_tuples2 t1 t2 = 
+    let (valid1, move1, game_state1, score1) = t1 in
+    let (valid2, move2, game_state2, score2) = t2 in
+    compare score1 score2 
+  in List.sort compare_tuples2 filtered_nxt_stps
+
+let find_solution (game:solitaire) visited_games : bool * player_move list =
+  (* 1. Normalize game *)
+  let normalized = normalize game in
+  (* 2. Check if game is over *)
+  let (over, _ ) = game_over game 0 in
+  (* A) if is over return results (bool, move history) *)
+  if over = true then (*return results*)
+  (* B) if not continue program *)
+  else 
+    (* 3. Get all possible moves from this state *)
+    let next_steps = get_next_moves game in
+    (* 4. Filter out unvalid moves that will lead to a already visited state *)
+    let filtered_nxt_stps = filter_next_steps next_steps visited_games in
+    (* A) if filtered list empty, undo the current/prev move. *)
+    if List.length filtered_nxt_stps < 0 then
+      (* A) [TODO] if filtered list empty, undo the current/prev move. *)
+      (* B) if not continue program *)
+    else
+      (* 5. Among filtered options, pick highest score. *)
+      let higest_option = sort_by_score filtered_nxt_stps in
+      (* 6. [TODO] move forward with highest score. *)
+        (*  A) [TODO] update visited states *)
+        (*  B) [TODO] add move to game_cpy hist *)
+  (* [TODO]: update mv_hist variable containing perfect move history that ends with solution *)
+    (* possible solution is to add to the game it self, so it will update correclty. *)
+
 let write_solution (history:player_move list) (file:string) : unit = 
   (* [TODO] *)
   (* let oc = open_out file in (*file open with write mode*)
@@ -154,21 +192,6 @@ let write_solution (history:player_move list) (file:string) : unit =
     output_string oc (move.source ^ " " ^ move.target "\n") in
     List.iter write_move history; close_out oc (*iterates over the list of words and writes each word to the file*)
   () *)
-
-let find_solution (game:solitaire) : bool * player_move list =
-  (* 1. Normalize game *)
-  let result_normalize = normalize game in
-  (* 2. Check if game is over *)
-  let (is_game_over, _) = game_over game 0 in
-  (* 3. Get all possible moves *)
-  let possibile_moves = get_all_poss_moves game in
-  (* 4. Take decision to move *)
-  (* 4.1 Get all visited states *)
-  (* 4.2 Get move history *)
-  (* 5. Repeat or Stop - based on moves available, game over, etc.*)
-  (* 6. Return results *)
-  (true, [{source="-1"; target="-1"}])
-
 let start_finder (permut:int list) (game_type:string) (file:string) : unit = 
   (* Get permutation p*)
   let p = permut in
