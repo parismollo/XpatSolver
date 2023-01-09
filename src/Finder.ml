@@ -7,6 +7,13 @@ open Solver
 
 module States = Set.Make (struct type t = solitaire let compare = compare_solitaires end);;
 
+let copy_game (game:solitaire) : solitaire = 
+  let cols_copy = Array.copy game.cols in
+  let reg_copy = Array.copy game.reg in
+  let dep_copy = Array.copy game.dep in
+  {name = game.name; cols = cols_copy; reg = reg_copy; dep = dep_copy; hist = game.hist}
+;;
+
 (* Compare two solitaires. Return 0 si if equal, otherwise a number !=0 *)
 let compare_solitaires (game1 : solitaire) (game2 : solitaire) : int = 
   let registers_equal = (Stdlib.compare game1.reg game2.reg) in
@@ -83,7 +90,7 @@ let apply_third_move_type (top_card:card) (game:solitaire) : (bool * player_move
   let top_card_src = string_of_int ((to_num top_card)) in
   let mvs_top = get_mvs_top top_card_src game in
   (* 2. then for each move, execute the move in a game and if valid store the (valid, move, game_cpy, score)*)
-  let possible_moves = get_possible_moves game mvs_top in
+  let possible_moves = get_possible_moves game mvs_top [] in
   possible_moves
   
 let apply_second_move_type (top_card:card) (game:solitaire) : (bool * player_move * solitaire *  int) = 
@@ -102,7 +109,7 @@ let apply_first_move_type (top_card:card) (game:solitaire) : (bool * player_move
   let top_card_int_str = string_of_int ((to_num top_card)) in
   let game_cpy = copy_game game in
   let move = {source=top_card_int_str; target="T"} in
-  let valid= execute_move move game_cpy in
+  let valid = execute_move move game_cpy in
   if valid = true then
     let score = get_score game_cpy in
     (true, move, game_cpy, score)
