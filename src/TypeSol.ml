@@ -117,3 +117,40 @@ let game_3 = create_game "bakers" [13; 32; 33; 35; 30; 46; 7; 29; 9; 48; 38; 36;
 
 let game_4 = create_game "midnight" [13; 32; 33; 35; 30; 46; 7; 29; 9; 48; 38; 36; 51; 41; 26; 20; 23; 43; 27; 42; 4; 21; 37; 39; 2;
 15; 34; 28; 25; 17; 16; 18; 31; 3; 0; 10; 50; 49; 14; 6; 24; 1; 22; 5; 40; 44; 11; 8; 45; 19; 12; 47]
+
+
+let rec display_depo lst = 
+  match lst with
+  | [] -> ()
+  | hd::tl ->
+      if hd != -1 then
+        let card = of_num hd in
+        Printf.printf "%s " (to_string card); 
+        display_depo tl 
+      else 
+        display_depo tl 
+      
+  
+let rec display_list list =
+  match list with 
+  | [] -> ()
+  | card :: sub_list ->
+      Printf.printf "%s ;%!" (to_string card);
+      display_list sub_list;;
+  
+let rec display_list_list col_or_depots = 
+  match col_or_depots with
+  | [] -> ()
+  | col :: sub -> Printf.printf "\n | "; display_list col; display_list_list sub ;;
+
+  
+let display game = 
+  let registers_list = Array.to_list game.reg in
+  let columns_list = Array.to_list game.cols in 
+  let depots_list = Array.to_list game.dep in
+  Printf.printf "Registers : \n";
+  display_list_list registers_list;
+  Printf.printf "\nColumns : \n";
+  display_list_list columns_list;
+  Printf.printf "\nDepots : \n";
+  display_depo depots_list;;

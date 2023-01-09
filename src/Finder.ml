@@ -19,9 +19,7 @@ let start_finder (permut:int list) (game_type:string) (file:string) : unit =
   (* Create game g with p*)
   let game = create_game game_type p in 
   (* Start find_solution*)
-  (* display game; *)
   let (result, history) = find_solution game in 
-  
   if result = true then
     (write_solution history file;
     Printf.printf "\nSUCCES\n")
