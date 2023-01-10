@@ -1,5 +1,4 @@
 open Card
-open Fifo
 (* type solitaire: nom, colonnes, registres, depot et historique *)
 type player_move = {source: string ; target: string} 
 
