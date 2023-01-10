@@ -13,20 +13,19 @@
     - [Solver](#solver)
     - [Finder](#finder)
   - [Organisation du travail](#organisation-du-travail)
-  - [](#)
+    - [Repartition des tâches](#repartition-des-tâches)
+    - [Chronologie](#chronologie)
+    - [Évolution du projet](#évolution-du-projet)
   - [Misc](#misc)
-    - [Bugs et tests non passés](#bugs-et-tests-non-passés)
-    - [Possibles modifications](#possibles-modifications)
-    - [Remarques](#remarques)
+    - [Bugs et tests non passés.](#bugs-et-tests-non-passés)
+    - [Possibles modifications.](#possibles-modifications)
+    - [Remarques.](#remarques)
 
 ## Identifiants
-
-Voir [remarques](#remarques)
-
 | Nom | Prénom | Identifiant | Numéro d'étudiant |
 | ----------|---------|-------------|-------------------|
-| Mollo Christondis | Felipe Paris | @mollochr | 22006343 |
 | Cortial | Jade | @cortial | 22007013 |
+| Mollo Christondis | Felipe Paris | @mollochr | 22006343 |
 
 ---
 ## Fonctionnalités
@@ -142,64 +141,21 @@ val read_and_execute : in_channel -> solitaire -> int -> bool * int = <fun>
 - `read_and_execute` bouclera chaque ligne du fichier et exécutera chaque mouvement.
 - `execute_move` passera par les validations des règles et la structure du jeu, enfin il s'appliquera pour que le jeu s'envole après chaque coup.
 
-### Finder
-Le module de recherche, chargé de trouver une solution pour un jeu de solitaire, peut être défini principalement par trois parties.
 
-La première étant la fonction `start_finder` responsable de la création du jeu, de l'appel de la routine `find_solution` et enfin de l'écriture de la solution dans un fichier (`write_solution`).
+### Finder 
 
-`find_solution` est la partie principale de ce module, l'algorithme implémenté suit les directives ci-dessus :
-
-1. Normaliser le jeu
-2. Vérifiez si le jeu est terminé
-3. Obtenez tous les mouvements possibles à partir de cet état
-4. Filtrez les mouvements non valides qui mèneront à un état déjà visité
-5. Si la liste filtrée est vide, annulez le mouvement actuel/précédent.
-6. S'il n'y a rien à annuler, alors retournez les résultats
-7. Parmi les options filtrées, choisissez le score le plus élevé
-8. Avancez avec le score le plus élevé.
-
-Enfin la troisième section de ce fichier, se compose de toutes les fonctions auxiliaires utilisées à la fonction "find_solution" qui permettent à cela de fonctionner.
-```ocaml
-val write_solution : player_move list -> out_channel -> unit = <fun>
-val start_finder : int list -> string -> string -> unit = <fun>
-val find_solution :
-  solitaire ->
-  States.t -> solitaire list -> player_move list -> bool * player_move list =
-  <fun>
-val sort_by_score : ('a * 'b * 'c * 'd) list -> ('a * 'b * 'c * 'd) list =
-  <fun>
-val filter_next_steps :
-  (bool * player_move * States.elt * int) list ->
-  States.t -> (bool * player_move * solitaire * int) list = <fun>
-```
 ---
 ## Organisation du travail
-Les travaux ont débuté le 27 novembre et ont duré environ 6 semaines. Les tâches ont été séparées en fonction de la section projet. Au départ, les tâches concernaient la création et l'initialisation du type de jeu. Après cela, l'algorithme de permutation et pour conclure la première partie la mécanique du jeu et la vérification d'un fichier solution. Enfin, la dernière partie concernait l'algorithme de recherche de solution.
 
-Pour le développement de chaque section et tâche, le processus de développement peut être résumé en 4 parties :
-1. Lecture et compréhension de la tâche
-2. Conception de solutions
-3. Mise en œuvre
-4. Test
+### Repartition des tâches
+### Chronologie
+### Évolution du projet
 
-Le développement et les tests ont été effectués simultanément, chaque fonction a été testée dans un environnement séparé avant d'être intégrée. Pour la conception de la solution, exalidraw diagrams a été utilisé.
-
-![Design project example](design_project_example.png)
 ---
 ## Misc
 
-### Bugs et tests non passés
-Malheureusement, en raison du contexte de développement du projet, un bug de la section `search` n'a pas pu être résolue entraînant un résultat de test pas parfait.
-
-Le bug consiste probablement a une problème liée aux recherches de mouvement possibles où il semble que pas tous movement possible sont correctement trouvées lors de l'algorithme de `find_solution` de sorte que des jeux que devrait avoir des solutions finissent pour ne pas avoir.
-
-### Possibles modifications
-Une modification majeur mais que dû le temps et le context du projet n'as pas pu être realisé c'est le changement du type des variables `visited_seq` de la fonction `find_solution()`. Utilisés aussi lors de la fonction `sort_by_score()` et `filter_next_steps()`.
-
-La variable est actuellement du type `solitaire list` mais cela n'est pas optimale, donc un changement vers un type `States` est beacoup plus pertinent. 
-
-### Remarques
-
-Il est important de souligner que ce projet devrait initialement se faire en équipe de deux. Cependant, il me semble que Jade cortial (@cortial) a eu un problème de santé pendant le processus et le projet a été presque entièrement réalisé par un seul membre, Felipe Paris Mollo Christondis(@mollochr). Cela a fini par affecter le projet de plusieurs manières, l'une étant la charge de travail élevée qui a fait que tous les tests n'ont pas réussi avant la date d'échéance.
+### Bugs et tests non passés.
+### Possibles modifications.
+### Remarques.
 
 ---
