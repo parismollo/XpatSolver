@@ -1,6 +1,7 @@
 open Card
 open Fifo
 (* type solitaire: nom, colonnes, registres, depot et historique *)
+type player_move = {source: string ; target: string} 
 
 type solitaire = {
   (*convert cols and registers into card list Array.t *)
@@ -8,8 +9,9 @@ type solitaire = {
   cols : card list Array.t;
   reg : card list Array.t;
   dep : int Array.t;
-  hist: int
+  hist: player_move list
 }
+(* Attention to hist, I have to append every time! *)
 
 type game_config = {
   nbcols : int;
@@ -88,7 +90,7 @@ let prepare_game game_name cards nbcols cardsPerCol nbreg nbdepot=
   (* prepare_game : return game solitaire *)
   (* initiate all attributes and call fill_gamme_attrib function *)
   let name = game_name in
-  let history = 0 in
+  let history = [] in
   let dep = Array.make nbdepot (-1) in (*ATTENTION WITH -1 MAY BREAK SOMETHING LATER*)
   let registers = Array.make nbreg [] in
   let columns = Array.make nbcols [] in 

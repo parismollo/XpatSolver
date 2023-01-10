@@ -4,23 +4,22 @@ open Card
 open XpatRandom
 open Solver
 
-
-module States = Set.Make (struct type t = solitaire let compare = compare_solitaires end);;
-
-let copy_game (game:solitaire) : solitaire = 
-  let cols_copy = Array.copy game.cols in
-  let reg_copy = Array.copy game.reg in
-  let dep_copy = Array.copy game.dep in
-  {name = game.name; cols = cols_copy; reg = reg_copy; dep = dep_copy; hist = game.hist}
-;;
-
 (* Compare two solitaires. Return 0 si if equal, otherwise a number !=0 *)
 let compare_solitaires (game1 : solitaire) (game2 : solitaire) : int = 
   let registers_equal = (Stdlib.compare game1.reg game2.reg) in
   if registers_equal = 0 then
     Stdlib.compare game1.cols game2.cols (* 0 if equal. Otherwise a number != 0 *)
   else
-    registers_equal;;
+    registers_equal
+
+module States = Set.Make (struct type t = solitaire let compare = compare_solitaires end)
+
+let copy_game (game:solitaire) : solitaire = 
+  let cols_copy = Array.copy game.cols in
+  let reg_copy = Array.copy game.reg in
+  let dep_copy = Array.copy game.dep in
+  {name = game.name; cols = cols_copy; reg = reg_copy; dep = dep_copy; hist = game.hist}
+
   
 let get_score (game:solitaire) : int = 
   let dep = game.dep in
@@ -31,7 +30,7 @@ let get_score (game:solitaire) : int =
     | x :: tl -> let (value, rank) = of_num x in sum tl (total+value) 
   in sum (Array.to_list dep) 0
 
-let update_visited_states visited_array new_visited_state = 
+(* let update_visited_states visited_array new_visited_state = 
   (* [TODO] *)
   (* visited_array.append(new_visited_state) *)
 
@@ -39,13 +38,13 @@ let can_visit visited_array new_state_opt =
   (* [TODO] *)
   (* for visited in visited_array
       if new_state == visited then false
-  return true *)
+  return true *) *)
 
-let update_move_history mv_hist new_move = 
+(* let update_move_history mv_hist new_move = 
   (* [TODO] *)
     (* // after taking a decision for a move
     // update this variable
-    mv_hist.append(new_move) *)
+    mv_hist.append(new_move) *) *)
 
 let get_all_tops game = 
   (* Returns all top cards found in columns and registers in int format*)
@@ -53,7 +52,7 @@ let get_all_tops game =
     List.filter (fun x -> if x = -1 then false else true)(Array.to_list (Array.map (fun x -> if List.length x > 0 then (to_num (List.hd x)) else -1) game.cols)) in
   let all_reg = 
     List.filter (fun x -> if x = -1 then false else true) (Array.to_list (Array.map (fun x -> if List.length x > 0 then (to_num (List.hd x)) else -1) game.reg)) in
-  all_cols @ all_reg;;
+  all_cols @ all_reg
   
 let rec get_possible_moves game mvs_top results = 
   match mvs_top with
@@ -66,7 +65,7 @@ let rec get_possible_moves game mvs_top results =
         get_possible_moves game tail ((true, move, game_cpy, score) :: results)
       else 
         get_possible_moves game tail results
-;;
+
 
 let get_mvs_top top_card_src game = 
   let all_cols = 
@@ -76,7 +75,7 @@ let get_mvs_top top_card_src game =
     | [] -> []
     | top_card_target :: tail -> [{source=top_card_src; target= string_of_int top_card_target}] @ loop tail in
   loop all_cols
-;;
+
    
 let apply_third_move_type (top_card:card) (game:solitaire) : (bool * player_move * solitaire *  int) list = 
   (* 1. make a list of moves based on every top_card *)
@@ -124,7 +123,7 @@ let get_card_moves (game:solitaire) (top_card:card) : (bool * player_move * soli
   
   List.filter (fun x -> 
       let (bool, move, game, score) = x in
-      if bool = false then false else true) all_results;;
+      if bool = false then false else true) all_results
 
 let get_next_moves (game:solitaire) : (bool * player_move * solitaire * int) list =
   (* ATTENTION: Array.append will return a new array!! *)
@@ -139,7 +138,7 @@ let get_next_moves (game:solitaire) : (bool * player_move * solitaire * int) lis
     match list with
     |[] -> []
     |top_card :: tl -> (get_card_moves game top_card) @ loop tl in
-  loop (List.map (fun x -> of_num x) list);;
+  loop (List.map (fun x -> of_num x) list)
 
 
 let filter_next_steps next_steps visited_games : (bool * player_move * solitaire * int) list = 
@@ -159,40 +158,61 @@ let sort_by_score filtered_nxt_stps =
     compare score1 score2 
   in List.sort compare_tuples2 filtered_nxt_stps
 
-let find_solution (game:solitaire) visited_games : bool * player_move list =
+let rec find_solution (game:solitaire) visited_game_history (visited_seq:solitaire list) (move_history:player_move list) : bool * player_move list =
   (* 1. Normalize game *)
   let normalized = normalize game in
   (* 2. Check if game is over *)
   let (over, _ ) = game_over game 0 in
-  (* A) if is over return results (bool, move history) *)
-  if over = true then (*return results*)
-  (* B) if not continue program *)
+    (* A) if is over return results (bool, move history) *)
+  if over = true then 
+    (* B) if not continue program *)
+    (true, move_history)
   else 
     (* 3. Get all possible moves from this state *)
     let next_steps = get_next_moves game in
     (* 4. Filter out unvalid moves that will lead to a already visited state *)
-    let filtered_nxt_stps = filter_next_steps next_steps visited_games in
+    let filtered_nxt_stps = filter_next_steps next_steps visited_game_history in
     (* A) if filtered list empty, undo the current/prev move. *)
     if List.length filtered_nxt_stps < 0 then
       (* A) [TODO] if filtered list empty, undo the current/prev move. *)
-      (* B) if not continue program *)
+        if List.length visited_seq > 1 then
+          (* [TODO] Remove last move from from history *)
+          let removed_lst_mv_hist = List.tl move_history in
+          (* [TODO] Remove last visited_seq *)
+          let removed_lst_vst_seq = List.tl visited_seq in
+          (* [TODO] call recursive function *)
+          let prev_game = List.hd visited_seq in
+          find_solution prev_game visited_game_history removed_lst_vst_seq removed_lst_mv_hist
+        else 
+        (* a) [TODO] if nothing to undo, then over and  return results *)
+          (false, move_history)
+    (* B) if not continue program *)
     else
       (* 5. Among filtered options, pick highest score. *)
-      let higest_option = sort_by_score filtered_nxt_stps in
+      let higest_option = List.hd (sort_by_score filtered_nxt_stps) in
       (* 6. [TODO] move forward with highest score. *)
-        (*  A) [TODO] update visited states *)
-        (*  B) [TODO] add move to game_cpy hist *)
+      let (next_valid, next_move, next_game, next_score) = higest_option in
+      (*  A) [TODO] add visited_game_history *)
+      let new_visited_game_history = States.add next_game visited_game_history in
+      (*  B) [TODO] add move_history *)
+      let new_move_history = [next_move] @ move_history in
+      (*  C) [TODO] add visited_seq  *)
+      let new_visited_seq = [next_game] @ visited_seq in
+      find_solution next_game new_visited_game_history new_visited_seq new_move_history
+
+
   (* [TODO]: update mv_hist variable containing perfect move history that ends with solution *)
     (* possible solution is to add to the game it self, so it will update correclty. *)
 
-let write_solution (history:player_move list) (file:string) : unit = 
+
+(* let write_solution (history:player_move list) (file:string) : unit = 
   (* [TODO] *)
   (* let oc = open_out file in (*file open with write mode*)
   let write_move (move:player_move) : unit = (*write a move in a file followed by a newline*)
     output_string oc (move.source ^ " " ^ move.target "\n") in
     List.iter write_move history; close_out oc (*iterates over the list of words and writes each word to the file*)
-  () *)
-let start_finder (permut:int list) (game_type:string) (file:string) : unit = 
+  () *) *)
+(* let start_finder (permut:int list) (game_type:string) (file:string) : unit = 
   (* Get permutation p*)
   let p = permut in
   (* Create game g with p*)
@@ -204,7 +224,7 @@ let start_finder (permut:int list) (game_type:string) (file:string) : unit =
     Printf.printf "\nSUCCES\n")
   else
     (Printf.printf "\nINSOLUBLE\n"; exit 2);
-  ()
+  () *)
 
 (* To test this: *)
 (* 1. Create a game *)

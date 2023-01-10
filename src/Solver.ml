@@ -5,7 +5,6 @@ open XpatRandom
 
 (* source: card to move *)
 (* target: card destination *)
-type player_move = {source: string ; target: string} 
 
 (* Convert line into player_move type *)
 let tokenize line =
