@@ -5,6 +5,7 @@ open XpatRandom
 
 (* source: card to move *)
 (* target: card destination *)
+type player_move = {source: string ; target: string} 
 
 (* Convert line into player_move type *)
 let tokenize line =
@@ -395,7 +396,7 @@ let rec read_and_execute file game counter =
     (* TODO: à la fin normalizer *)
     let result = execute_move player_move game in
     if result = false then
-      let _ = Printf.printf "EXECUTE FALSE" in
+      (* let _ = Printf.printf "EXECUTE FALSE" in *)
       (false, counter)
       (* [TODO] add N value for echec *)
       (* print_string "ECHEC"; *)

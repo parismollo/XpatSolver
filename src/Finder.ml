@@ -173,34 +173,32 @@ let rec find_solution (game:solitaire) visited_game_history (visited_seq:solitai
     (* 4. Filter out unvalid moves that will lead to a already visited state *)
     let filtered_nxt_stps = filter_next_steps next_steps visited_game_history in
     (* A) if filtered list empty, undo the current/prev move. *)
-    if List.length filtered_nxt_stps < 0 then
-      (* A) [TODO] if filtered list empty, undo the current/prev move. *)
+    if List.length filtered_nxt_stps <= 0 then
+      (* A) if filtered list empty, undo the current/prev move. *)
         if List.length visited_seq > 1 then
-          (* [TODO] Remove last move from from history *)
+          (* Remove last move from from history *)
           let removed_lst_mv_hist = List.tl move_history in
-          (* [TODO] Remove last visited_seq *)
+          (* Remove last visited_seq *)
           let removed_lst_vst_seq = List.tl visited_seq in
-          (* [TODO] call recursive function *)
+          (* call recursive function *)
           let prev_game = List.hd visited_seq in
           find_solution prev_game visited_game_history removed_lst_vst_seq removed_lst_mv_hist
         else 
-        (* a) [TODO] if nothing to undo, then over and  return results *)
+        (* a) if nothing to undo, then over and  return results *)
           (false, move_history)
     (* B) if not continue program *)
     else
       (* 5. Among filtered options, pick highest score. *)
       let higest_option = List.hd (sort_by_score filtered_nxt_stps) in
-      (* 6. [TODO] move forward with highest score. *)
+      (* 6. move forward with highest score. *)
       let (next_valid, next_move, next_game, next_score) = higest_option in
-      (*  A) [TODO] add visited_game_history *)
+      (*  A) add visited_game_history *)
       let new_visited_game_history = States.add next_game visited_game_history in
-      (*  B) [TODO] add move_history *)
+      (*  B) add move_history *)
       let new_move_history = [next_move] @ move_history in
-      (*  C) [TODO] add visited_seq  *)
+      (*  C) add visited_seq  *)
       let new_visited_seq = [next_game] @ visited_seq in
       find_solution next_game new_visited_game_history new_visited_seq new_move_history
-
-
   (* [TODO]: update mv_hist variable containing perfect move history that ends with solution *)
     (* possible solution is to add to the game it self, so it will update correclty. *)
 
@@ -212,6 +210,14 @@ let rec find_solution (game:solitaire) visited_game_history (visited_seq:solitai
     output_string oc (move.source ^ " " ^ move.target "\n") in
     List.iter write_move history; close_out oc (*iterates over the list of words and writes each word to the file*)
   () *) *)
+
+let rec write_solution (history:player_move list) file  = 
+  match history with 
+  | [] -> close_out file;
+  | move :: tl_moves -> 
+    (Printf.fprintf file "%s %s\n" (move.source) (move.target)); 
+    write_solution tl_moves file
+
 (* let start_finder (permut:int list) (game_type:string) (file:string) : unit = 
   (* Get permutation p*)
   let p = permut in
@@ -226,6 +232,16 @@ let rec find_solution (game:solitaire) visited_game_history (visited_seq:solitai
     (Printf.printf "\nINSOLUBLE\n"; exit 2);
   () *)
 
-(* To test this: *)
-(* 1. Create a game *)
-(* 2. Run find solution and check evolution of each variable*)
+
+(* Start game with config type *)
+let start_finder permut game_type mode =
+  (* Create game g with p*)
+  let file = open_out mode in
+  let game = create_game game_type permut in
+  let (result, history) = (find_solution game States.empty [] []) in
+  if result = true then
+    (write_solution history file;
+    Printf.printf "\nSUCCES\n";)
+  else 
+    (Printf.printf "\nINSOLUBLE\n" ; exit 2);
+  ()
