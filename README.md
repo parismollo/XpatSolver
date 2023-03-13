@@ -13,7 +13,6 @@
     - [Solver](#solver)
     - [Finder](#finder)
   - [Organisation du travail](#organisation-du-travail)
-  - [](#)
   - [Misc](#misc)
     - [Bugs et tests non passés](#bugs-et-tests-non-passés)
     - [Possibles modifications](#possibles-modifications)
